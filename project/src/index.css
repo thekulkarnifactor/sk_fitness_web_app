@@ -44,3 +44,44 @@
 .animate-slideUp {
     animation: slideUp 0.8s ease-out forwards;
 }
+
+
+/* Swiper 3D Coverflow Styles */
+
+.features-swiper {
+    width: 100%;
+    padding-top: 50px;
+    padding-bottom: 50px;
+}
+
+.features-swiper .swiper-slide {
+    width: 400px;
+    height: 500px;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.features-swiper .swiper-slide-shadow-left {
+    background-image: linear-gradient(to left, #000, transparent);
+    border-right: 1px solid #000;
+    border-radius: 10px;
+}
+
+.features-swiper .swiper-slide-shadow-right {
+    background-image: linear-gradient(to right, #000, transparent);
+    box-shadow: 0 0 0 1px #000;
+    border-radius: 10px;
+}
+
+.features-swiper .swiper-pagination-bullet {
+    background: #696969;
+    transition: all 0.5s ease;
+    border-radius: 8px;
+    width: 10px;
+    height: 10px;
+}
+
+.features-swiper .swiper-pagination-bullet-active {
+    background: #ffc107;
+    width: 30px;
+}

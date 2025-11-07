@@ -1,6 +1,11 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { ArrowRight, Sparkles, Leaf, Target, TrendingUp } from 'lucide-react';
+import Swiper from 'swiper';
+import { EffectCoverflow, Pagination } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/effect-coverflow';
+import 'swiper/css/pagination';
 
 interface HomeProps {
   onNavigate: (page: string) => void;
@@ -103,28 +108,68 @@ function TimelineStep({
 
 
 export function Home({ onNavigate }: HomeProps) {
+  const swiperRef = useRef<Swiper | null>(null);
   const features = [
-    {
-      icon: Sparkles,
-      title: 'AI-Driven Personalization',
-      description: 'Smart ingredient suggestions tailored to your fitness goals and macro targets',
-    },
-    {
-      icon: Leaf,
-      title: 'Fresh Ingredients',
-      description: 'Market-rate pricing for premium, fresh ingredients. Never frozen, always fresh',
-    },
-    {
-      icon: Target,
-      title: 'Built for Your Training',
-      description: 'Customized for gym, running, swimming, MMA, or any athletic pursuit',
-    },
-    {
-      icon: TrendingUp,
-      title: 'Performance Focused',
-      description: 'High-protein meals designed to fuel your performance and recovery',
-    },
+  {
+    icon: Sparkles,
+    title: 'AI-Driven Personalization',
+    description: 'Smart ingredient suggestions tailored to your fitness goals and macro targets',
+  },
+  {
+    icon: Leaf,
+    title: 'Fresh Ingredients',
+    description: 'Market-rate pricing for premium, fresh ingredients. Never frozen, always fresh',
+  },
+  {
+    icon: Target,
+    title: 'Built for Your Training',
+    description: 'Customized for gym, running, swimming, MMA, or any athletic pursuit',
+  },
+  {
+    icon: TrendingUp,
+    title: 'Performance Focused',
+    description: 'High-protein meals designed to fuel your performance and recovery',
+  },
   ];
+
+
+
+  useEffect(() => {
+  swiperRef.current = new Swiper('.features-swiper', {
+    modules: [EffectCoverflow, Pagination],
+    effect: 'coverflow',
+    loop: false, // Disable loop
+    grabCursor: true,
+    centeredSlides: true,
+    slidesPerView: 1,
+    coverflowEffect: {
+      rotate: 50,
+      stretch: 0,
+      depth: 100,
+      modifier: 1,
+      slideShadows: true,
+    },
+    pagination: {
+      el: '.swiper-pagination',
+      clickable: true,
+    },
+    breakpoints: {
+      320: { slidesPerView: 1.5 },
+      580: { slidesPerView: 2 },
+      767: { slidesPerView: 2.5 },
+      992: { slidesPerView: 3 },
+      1200: { slidesPerView: 3 },
+    },
+  });
+
+  return () => {
+    if (swiperRef.current) {
+      swiperRef.current.destroy();
+    }
+  };
+}, []);
+
+
 
   const steps = [
     {
@@ -358,8 +403,8 @@ export function Home({ onNavigate }: HomeProps) {
         </div>
       </section>
       
-      {/* Why House of Macros? */}
-      <section className="py-24 bg-gradient-to-b from-black to-zinc-950">
+      {/* Why House of Macros? - 3D Swiper Carousel */}
+      <section className="py-24 bg-gradient-to-b from-black to-zinc-950 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl sm:text-5xl font-bold mb-4">
@@ -370,19 +415,24 @@ export function Home({ onNavigate }: HomeProps) {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {features.map((feature, index) => (
-              <div
-                key={index}
-                className="bg-white/5 border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all group"
-              >
-                <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                  <feature.icon className="w-6 h-6 text-black" />
+          {/* Swiper Container */}
+          <div className="features-swiper pt-12 pb-16">
+            <div className="swiper-wrapper">
+              {features.map((feature, index) => (
+                <div key={index} className="swiper-slide">
+                  <div className="w-full h-[500px] bg-gradient-to-b from-white/5 to-transparent border border-white/10 rounded-xl p-8 flex flex-col justify-center items-center text-center">
+                    <div className="w-16 h-16 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-2xl flex items-center justify-center mb-6">
+                      <feature.icon className="w-8 h-8 text-black" />
+                    </div>
+                    <h3 className="text-2xl font-bold mb-4">{feature.title}</h3>
+                    <p className="text-gray-400 leading-relaxed text-lg max-w-md">
+                      {feature.description}
+                    </p>
+                  </div>
                 </div>
-                <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
-                <p className="text-gray-400 leading-relaxed">{feature.description}</p>
-              </div>
-            ))}
+              ))}
+            </div>
+            <div className="swiper-pagination mt-8"></div>
           </div>
         </div>
       </section>
