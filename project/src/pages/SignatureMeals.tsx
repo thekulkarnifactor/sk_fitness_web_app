@@ -31,6 +31,9 @@ interface SignatureMealsProps {
 }
 
 export function SignatureMeals({ onNavigate }: SignatureMealsProps) {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const [meals, setMeals] = useState<(SignatureMeal & { cuisine: Cuisine | null })[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

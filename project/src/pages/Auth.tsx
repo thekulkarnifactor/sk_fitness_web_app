@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { LogIn, UserPlus, Dumbbell, AlertCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { SmartInput } from '../components/SmartInput';
@@ -14,36 +14,64 @@ export function Auth({ onNavigate, onSuccess }: AuthProps) {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [fullName, setFullName] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [error, setError] = useState<{ message: string; action?: string }>({ message: '' });
   const [loading, setLoading] = useState(false);
   const { signIn, signUp } = useAuth();
 
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, []);
+
   const validateForm = (): boolean => {
-    if (!isLogin && !fullName.trim()) {
-      setError('Please enter your full name');
-      return false;
+    if (!isLogin) {
+      if (!firstName.trim()) {
+        setError({ message: 'Please enter your first name' });
+        return false;
+      }
+      if (!lastName.trim()) {
+        setError({ message: 'Please enter your last name' });
+        return false;
+      }
     }
+
     if (!email.trim()) {
-      setError('Please enter your email');
+      setError({ message: 'Please enter your email' });
       return false;
     }
+
     const emailError = validators.email(email);
     if (emailError) {
-      setError(emailError);
+      setError({ message: emailError });
       return false;
     }
+
     const passwordError = validators.password(password);
     if (passwordError) {
-      setError(passwordError);
+      setError({ message: passwordError });
       return false;
     }
+
+    if (!isLogin) {
+      if (!confirmPassword) {
+        setError({ message: 'Please confirm your password' });
+        return false;
+      }
+      if (password !== confirmPassword) {
+        setError({ message: 'Passwords do not match' });
+        return false;
+      }
+    }
+
     return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError({ message: '' });
 
     if (!validateForm()) {
       return;
@@ -60,6 +88,8 @@ export function Auth({ onNavigate, onSuccess }: AuthProps) {
         onSuccess();
       }
     } else {
+      // Combine first and last name for full name
+      const fullName = `${firstName.trim()} ${lastName.trim()}`;
       const { error: authError } = await signUp(email, password, fullName);
       if (authError) {
         const friendlyError = getAuthErrorMessage(authError.message);
@@ -91,7 +121,10 @@ export function Auth({ onNavigate, onSuccess }: AuthProps) {
         <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
           <div className="flex gap-2 mb-8 bg-white/5 p-1 rounded-xl">
             <button
-              onClick={() => setIsLogin(true)}
+              onClick={() => {
+                setIsLogin(true);
+                setError({ message: '' });
+              }}
               className={`flex-1 py-3 rounded-lg font-medium transition-all ${
                 isLogin
                   ? 'bg-gradient-to-r from-amber-500 to-yellow-600 text-black'
@@ -102,7 +135,10 @@ export function Auth({ onNavigate, onSuccess }: AuthProps) {
               Login
             </button>
             <button
-              onClick={() => setIsLogin(false)}
+              onClick={() => {
+                setIsLogin(false);
+                setError({ message: '' });
+              }}
               className={`flex-1 py-3 rounded-lg font-medium transition-all ${
                 !isLogin
                   ? 'bg-gradient-to-r from-amber-500 to-yellow-600 text-black'
@@ -116,17 +152,40 @@ export function Auth({ onNavigate, onSuccess }: AuthProps) {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {!isLogin && (
-              <SmartInput
-                id="fullName"
-                label="Full Name"
-                value={fullName}
-                onChange={setFullName}
-                type="text"
-                placeholder="John Doe"
-                required
-                validate={validators.name}
-                helperText="How you'd like us to address you"
-              />
+              <>
+                {/* First Name and Last Name Row */}
+                <div className="grid grid-cols-2 gap-4">
+                  <SmartInput
+                    id="firstName"
+                    label="First Name"
+                    value={firstName}
+                    onChange={setFirstName}
+                    type="text"
+                    placeholder="John"
+                    required
+                    validate={(value) => {
+                      if (!value.trim()) return 'First name is required';
+                      if (value.trim().length < 2) return 'At least 2 characters';
+                      return '';
+                    }}
+                  />
+
+                  <SmartInput
+                    id="lastName"
+                    label="Last Name"
+                    value={lastName}
+                    onChange={setLastName}
+                    type="text"
+                    placeholder="Doe"
+                    required
+                    validate={(value) => {
+                      if (!value.trim()) return 'Last name is required';
+                      if (value.trim().length < 2) return 'At least 2 characters';
+                      return '';
+                    }}
+                  />
+                </div>
+              </>
             )}
 
             <SmartInput
@@ -151,6 +210,24 @@ export function Auth({ onNavigate, onSuccess }: AuthProps) {
               validate={validators.password}
               helperText={!isLogin ? 'At least 6 characters (8+ recommended for security)' : undefined}
             />
+
+            {!isLogin && (
+              <SmartInput
+                id="confirmPassword"
+                label="Confirm Password"
+                value={confirmPassword}
+                onChange={setConfirmPassword}
+                type="password"
+                placeholder="••••••••"
+                required
+                validate={(value) => {
+                  if (!value) return 'Please confirm your password';
+                  if (value !== password) return 'Passwords do not match';
+                  return '';
+                }}
+                helperText="Re-enter your password to confirm"
+              />
+            )}
 
             {error.message && (
               <div className="p-4 bg-red-500/10 border border-red-500/50 rounded-lg space-y-2">

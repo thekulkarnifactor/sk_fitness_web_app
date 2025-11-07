@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Check, ArrowRight, Sparkles } from 'lucide-react';
 
 interface PlansProps {
@@ -56,6 +57,9 @@ const PLANS = [
 ];
 
 export function Plans({ onNavigate }: PlansProps) {
+  useEffect(() => {
+      window.scrollTo(0, 0);
+    }, []);
   return (
     <div className="min-h-screen bg-black text-white pt-24 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

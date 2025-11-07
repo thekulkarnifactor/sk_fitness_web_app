@@ -43,6 +43,9 @@ const MEAL_TIERS = [
 ];
 
 export function MealBuilder({ onNavigate, targetCalories: initialCalories = 600, targetProtein: initialProtein = 50 }: MealBuilderProps) {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const [step, setStep] = useState(1);
   const [selectedGoal, setSelectedGoal] = useState('');
   const [targetCalories, setTargetCalories] = useState(initialCalories);

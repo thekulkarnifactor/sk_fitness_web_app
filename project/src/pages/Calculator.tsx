@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Calculator as CalcIcon, Activity, Target, TrendingUp, TrendingDown, Minus, ArrowRight } from 'lucide-react';
 import { FormSection } from '../components/FormSection';
 
@@ -8,6 +8,9 @@ interface CalculatorProps {
 }
 
 export function Calculator({ onNavigate, onCalculationComplete }: CalculatorProps) {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const [age, setAge] = useState(25);
   const [weight, setWeight] = useState(70);
   const [height, setHeight] = useState(170);
