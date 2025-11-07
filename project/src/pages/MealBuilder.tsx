@@ -344,23 +344,68 @@ export function MealBuilder({ onNavigate, targetCalories: initialCalories = 600,
 
                   <div className="bg-white/5 border border-white/10 rounded-xl p-6">
                     <h3 className="text-xl font-bold mb-4">Available Ingredients</h3>
-                    <div className="grid sm:grid-cols-2 gap-3 max-h-96 overflow-y-auto">
-                      {ingredients.map((ingredient) => (
-                        <button
-                          key={ingredient.id}
-                          onClick={() => addIngredient(ingredient)}
-                          className="p-4 bg-white/5 border border-white/10 rounded-lg text-left hover:border-amber-500/50 transition-all"
-                        >
-                          <div className="font-medium mb-1">{ingredient.name}</div>
-                          <div className="text-xs text-gray-400">
-                            {ingredient.protein_per_100g}g protein • {ingredient.calories_per_100g} kcal
+                    <div className="space-y-3 max-h-96 overflow-y-auto">
+                      {ingredients.map((ingredient) => {
+                        // Check if ingredient is already selected
+                        const selected = selectedIngredients.find(
+                          (item) => item.ingredient.id === ingredient.id
+                        );
+
+                        return (
+                          <div
+                            key={ingredient.id}
+                            className={`p-4 rounded-lg border transition-all ${
+                              selected
+                                ? 'bg-amber-500/10 border-amber-500/30'
+                                : 'bg-white/5 border-white/10'
+                            }`}
+                          >
+                            {selected ? (
+                              // Show quantity control if already selected
+                              <AccessibleQuantityControl
+                                label={ingredient.name}
+                                value={selected.quantity}
+                                onChange={(newQty) => {
+                                  setSelectedIngredients(
+                                    selectedIngredients
+                                      .map((i) =>
+                                        i.ingredient.id === ingredient.id
+                                          ? { ...i, quantity: newQty }
+                                          : i
+                                      )
+                                      .filter((i) => i.quantity > 0)
+                                  );
+                                }}
+                                min={0}
+                                max={500}
+                                step={25}
+                                unit="g"
+                                id={`qty-avail-${ingredient.id}`}
+                              />
+                            ) : (
+                              // Show add button if not selected
+                              <button
+                                onClick={() => addIngredient(ingredient)}
+                                className="w-full text-left hover:bg-white/5 transition-all rounded-lg p-2"
+                              >
+                                <div className="flex items-center justify-between">
+                                  <div className="flex-1">
+                                    <div className="font-medium mb-1">{ingredient.name}</div>
+                                    <div className="text-xs text-gray-400">
+                                      {ingredient.protein_per_100g}g protein • {ingredient.calories_per_100g} kcal
+                                    </div>
+                                  </div>
+                                  <Plus className="w-5 h-5 text-amber-400 flex-shrink-0 ml-2" />
+                                </div>
+                              </button>
+                            )}
                           </div>
-                        </button>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
 
-                  {selectedIngredients.length > 0 && (
+                  {/* {selectedIngredients.length > 0 && (
                     <div className="bg-white/5 border border-white/10 rounded-xl p-6">
                       <h3 className="text-xl font-bold mb-4">Your Ingredients</h3>
                       <div className="space-y-3">
@@ -391,7 +436,7 @@ export function MealBuilder({ onNavigate, targetCalories: initialCalories = 600,
                         ))}
                       </div>
                     </div>
-                  )}
+                  )} */}
                 </div>
 
                 <div className="lg:col-span-1">
