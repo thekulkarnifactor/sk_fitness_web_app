@@ -1,0 +1,46 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@layer utilities {
+    .pause {
+        animation-play-state: paused;
+    }
+}
+
+@layer base {
+    * {
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+    body {
+        @apply antialiased;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fadeIn {
+    animation: fadeIn 1.2s ease-out forwards;
+}
+
+.animate-slideUp {
+    animation: slideUp 0.8s ease-out forwards;
+}
