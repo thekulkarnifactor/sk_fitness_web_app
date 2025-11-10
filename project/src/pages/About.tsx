@@ -1,10 +1,14 @@
 import { Target, Heart, Sparkles, ChefHat } from 'lucide-react';
+import { useEffect } from 'react';
 
 interface AboutProps {
   onNavigate: (page: string) => void;
 }
 
 export function About({ onNavigate }: AboutProps) {
+  useEffect(() => {
+      window.scrollTo(0, 0);
+    }, []);
   const values = [
     {
       icon: Target,

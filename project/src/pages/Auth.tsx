@@ -11,6 +11,9 @@ interface AuthProps {
 }
 
 export function Auth({ onNavigate, onSuccess }: AuthProps) {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

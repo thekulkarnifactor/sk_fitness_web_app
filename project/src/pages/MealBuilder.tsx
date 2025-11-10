@@ -195,7 +195,7 @@ export function MealBuilder({ onNavigate, targetCalories: initialCalories = 600,
           <h1 className="text-4xl sm:text-5xl font-bold mb-4">
             Build Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-yellow-600">Perfect Meal</span>
           </h1>
-          <p className="text-xl text-gray-400">AI-powered personalization for peak performance</p>
+          {/* <p className="text-xl text-gray-400">AI-powered personalization for peak performance</p> */}
         </div>
 
         <div className="mb-12">

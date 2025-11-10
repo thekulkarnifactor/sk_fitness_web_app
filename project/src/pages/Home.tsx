@@ -1,8 +1,8 @@
-import { useEffect, useRef } from 'react';
-import { motion, useInView } from 'framer-motion';
+import { useState, useEffect, useRef } from 'react';
 import { ArrowRight, Sparkles, Leaf, Target, TrendingUp } from 'lucide-react';
-import Swiper from 'swiper';
-import { EffectCoverflow, Pagination } from 'swiper/modules';
+import { useScroll, useTransform, motion, useInView } from 'framer-motion';
+// import Swiper from 'swiper';
+// import { EffectCoverflow, Pagination } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/effect-coverflow';
 import 'swiper/css/pagination';
@@ -12,13 +12,13 @@ interface HomeProps {
 }
 
 // TimelineStep Component for alternating scroll animation
-function TimelineStep({ 
-  step, 
-  index, 
-  isEven 
-}: { 
-  step: { number: string; title: string; description: string }; 
-  index: number; 
+function TimelineStep({
+  step,
+  index,
+  isEven
+}: {
+  step: { number: string; title: string; description: string };
+  index: number;
   isEven: boolean;
 }) {
   const ref = useRef(null);
@@ -46,16 +46,16 @@ function TimelineStep({
       <div className="hidden lg:grid lg:grid-cols-2 lg:gap-16 items-center">
         {/* Left Side */}
         <motion.div
-          initial={{ 
-            opacity: 0, 
+          initial={{
+            opacity: 0,
             x: isEven ? -100 : 0,
           }}
-          animate={isInView ? { 
-            opacity: isEven ? 1 : 0, 
-            x: 0 
-          } : { 
-            opacity: 0, 
-            x: isEven ? -100 : 0 
+          animate={isInView ? {
+            opacity: isEven ? 1 : 0,
+            x: 0
+          } : {
+            opacity: 0,
+            x: isEven ? -100 : 0
           }}
           transition={{ duration: 0.6, ease: "easeOut" }}
           className={isEven ? "" : "invisible"}
@@ -79,16 +79,16 @@ function TimelineStep({
 
         {/* Right Side */}
         <motion.div
-          initial={{ 
-            opacity: 0, 
+          initial={{
+            opacity: 0,
             x: !isEven ? 100 : 0,
           }}
-          animate={isInView ? { 
-            opacity: !isEven ? 1 : 0, 
-            x: 0 
-          } : { 
-            opacity: 0, 
-            x: !isEven ? 100 : 0 
+          animate={isInView ? {
+            opacity: !isEven ? 1 : 0,
+            x: 0
+          } : {
+            opacity: 0,
+            x: !isEven ? 100 : 0
           }}
           transition={{ duration: 0.6, ease: "easeOut" }}
           className={!isEven ? "" : "invisible"}
@@ -108,66 +108,96 @@ function TimelineStep({
 
 
 export function Home({ onNavigate }: HomeProps) {
-  const swiperRef = useRef<Swiper | null>(null);
-  const features = [
-  {
-    icon: Sparkles,
-    title: 'AI-Driven Personalization',
-    description: 'Smart ingredient suggestions tailored to your fitness goals and macro targets',
-  },
-  {
-    icon: Leaf,
-    title: 'Fresh Ingredients',
-    description: 'Market-rate pricing for premium, fresh ingredients. Never frozen, always fresh',
-  },
-  {
-    icon: Target,
-    title: 'Built for Your Training',
-    description: 'Customized for gym, running, swimming, MMA, or any athletic pursuit',
-  },
-  {
-    icon: TrendingUp,
-    title: 'Performance Focused',
-    description: 'High-protein meals designed to fuel your performance and recovery',
-  },
-  ];
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+  const [windowWidth, setWindowWidth] = useState(0);
+  const targetRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: targetRef,
+    offset: ["start start", "end end"]
+  });
 
+  const features = [
+    {
+      icon: Sparkles,
+      title: 'AI-Driven Personalization',
+      description: 'Smart ingredient suggestions tailored to your fitness goals and macro targets',
+    },
+    {
+      icon: Leaf,
+      title: 'Fresh Ingredients',
+      description: 'Market-rate pricing for premium, fresh ingredients. Never frozen, always fresh',
+    },
+    {
+      icon: Target,
+      title: 'Built for Your Training',
+      description: 'Customized for gym, running, swimming, MMA, or any athletic pursuit',
+    },
+    {
+      icon: TrendingUp,
+      title: 'Performance Focused',
+      description: 'High-protein meals designed to fuel your performance and recovery',
+    },
+  ];
+  // const swiperRef = useRef<Swiper | null>(null);const totalScrollWidth = (features.length * 532) + window.innerWidth;
+
+  const cardWidth = 450;
+  const gap = 32;
+
+  // Calculate scroll distance so last card ends in center
+  const totalCards = features.length;
+  const centerOffset = windowWidth / 2 - cardWidth / 2;
+  const totalScroll = (totalCards - 1) * (cardWidth + gap);
+
+  const x = useTransform(
+    scrollYProgress,
+    [0, 1],
+    [centerOffset, -(totalScroll - centerOffset)]
+  );
 
 
   useEffect(() => {
-  swiperRef.current = new Swiper('.features-swiper', {
-    modules: [EffectCoverflow, Pagination],
-    effect: 'coverflow',
-    loop: false, // Disable loop
-    grabCursor: true,
-    centeredSlides: true,
-    slidesPerView: 1,
-    coverflowEffect: {
-      rotate: 50,
-      stretch: 0,
-      depth: 100,
-      modifier: 1,
-      slideShadows: true,
-    },
-    pagination: {
-      el: '.swiper-pagination',
-      clickable: true,
-    },
-    breakpoints: {
-      320: { slidesPerView: 1.5 },
-      580: { slidesPerView: 2 },
-      767: { slidesPerView: 2.5 },
-      992: { slidesPerView: 3 },
-      1200: { slidesPerView: 3 },
-    },
-  });
+    setWindowWidth(window.innerWidth);
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
-  return () => {
-    if (swiperRef.current) {
-      swiperRef.current.destroy();
-    }
-  };
-}, []);
+  //   useEffect(() => {
+  //   swiperRef.current = new Swiper('.features-swiper', {
+  //     modules: [EffectCoverflow, Pagination],
+  //     effect: 'coverflow',
+  //     loop: false, // Disable loop
+  //     grabCursor: true,
+  //     centeredSlides: true,
+  //     slidesPerView: 1,
+  //     coverflowEffect: {
+  //       rotate: 50,
+  //       stretch: 0,
+  //       depth: 100,
+  //       modifier: 1,
+  //       slideShadows: true,
+  //     },
+  //     pagination: {
+  //       el: '.swiper-pagination',
+  //       clickable: true,
+  //     },
+  //     breakpoints: {
+  //       320: { slidesPerView: 1.5 },
+  //       580: { slidesPerView: 2 },
+  //       767: { slidesPerView: 2.5 },
+  //       992: { slidesPerView: 3 },
+  //       1200: { slidesPerView: 3 },
+  //     },
+  //   });
+
+  //   return () => {
+  //     if (swiperRef.current) {
+  //       swiperRef.current.destroy();
+  //     }
+  //   };
+  // }, []);
 
 
 
@@ -257,7 +287,7 @@ export function Home({ onNavigate }: HomeProps) {
           </div>
         </div>
       </section>
-      
+
       {/* Infinite Logo Carousel Section */}
       <section className="py-12 bg-black border-y border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -275,138 +305,143 @@ export function Home({ onNavigate }: HomeProps) {
 
             {/* Scrolling Logos */}
             <div className="flex animate-scroll hover:pause">
-              {/* Fitness of logos */}
-              <div className="flex items-center justify-around min-w-full shrink-0 gap-16">
-                {/* MyProtein */}
-                <div className="mx-8 flex items-center justify-center h-16 px-8 bg-white/5 rounded-lg border border-white/10">
-                  <span className="text-2xl font-bold text-white">MyProtein</span>
-                </div>
-                
-                {/* Optimum Nutrition */}
-                <div className="mx-8 flex items-center justify-center h-16 px-8 bg-white/5 rounded-lg border border-white/10">
-                  <span className="text-2xl font-bold text-white">Optimum Nutrition</span>
-                </div>
-                
-                {/* MuscleBlaze */}
-                <div className="mx-8 flex items-center justify-center h-16 px-8 bg-white/5 rounded-lg border border-white/10">
-                  <span className="text-2xl font-bold text-amber-400">MuscleBlaze</span>
-                </div>
-                
-                {/* HealthKart */}
-                <div className="mx-8 flex items-center justify-center h-16 px-8 bg-white/5 rounded-lg border border-white/10">
-                  <span className="text-2xl font-bold text-green-400">HealthKart</span>
-                </div>
-                
-                {/* GNC */}
-                <div className="mx-8 flex items-center justify-center h-16 px-8 bg-white/5 rounded-lg border border-white/10">
-                  <span className="text-2xl font-bold text-red-400">GNC</span>
-                </div>
-                
-                {/* Nutrabay */}
-                <div className="mx-8 flex items-center justify-center h-16 px-8 bg-white/5 rounded-lg border border-white/10">
-                  <span className="text-2xl font-bold text-blue-400">Nutrabay</span>
-                </div>
-              </div>
-              {/* Companies set of logos */}
-              <div className="flex items-center justify-around min-w-full shrink-0">
-                <div className="mx-8 flex items-center justify-center">
-                  <img 
-                    src="https://tailwindui.com/plus/img/logos/158x48/transistor-logo-white.svg" 
-                    alt="Transistor" 
-                    className="h-12 opacity-60 hover:opacity-100 transition-opacity"
-                  />
-                </div>
-                <div className="mx-8 flex items-center justify-center">
-                  <img 
-                    src="https://tailwindui.com/plus/img/logos/158x48/reform-logo-white.svg" 
-                    alt="Reform" 
-                    className="h-12 opacity-60 hover:opacity-100 transition-opacity"
-                  />
-                </div>
-                <div className="mx-8 flex items-center justify-center">
-                  <img 
-                    src="https://tailwindui.com/plus/img/logos/158x48/tuple-logo-white.svg" 
-                    alt="Tuple" 
-                    className="h-12 opacity-60 hover:opacity-100 transition-opacity"
-                  />
-                </div>
-                <div className="mx-8 flex items-center justify-center">
-                  <img 
-                    src="https://tailwindui.com/plus/img/logos/158x48/savvycal-logo-white.svg" 
-                    alt="SavvyCal" 
-                    className="h-12 opacity-60 hover:opacity-100 transition-opacity"
-                  />
-                </div>
-                <div className="mx-8 flex items-center justify-center">
-                  <img 
-                    src="https://tailwindui.com/plus/img/logos/158x48/statamic-logo-white.svg" 
-                    alt="Statamic" 
-                    className="h-12 opacity-60 hover:opacity-100 transition-opacity"
-                  />
-                </div>
-                <div className="mx-8 flex items-center justify-center">
-                  <img 
-                    src="https://tailwindui.com/plus/img/logos/158x48/laravel-logo-white.svg" 
-                    alt="Laravel" 
-                    className="h-12 opacity-60 hover:opacity-100 transition-opacity"
-                  />
-                </div>
-              </div>
 
-              {/* Duplicate set for seamless loop */}
-              <div className="flex items-center justify-around min-w-full shrink-0" aria-hidden="true">
-                <div className="mx-8 flex items-center justify-center">
-                  <img 
-                    src="https://tailwindui.com/plus/img/logos/158x48/transistor-logo-white.svg" 
-                    alt="Transistor" 
-                    className="h-12 opacity-60 hover:opacity-100 transition-opacity"
-                  />
+              {/* Scrolling Logos */}
+              <div className="flex animate-scroll hover:pause">
+                {/* Fitness of logos */}
+                <div className="flex items-center justify-around min-w-full shrink-0 gap-16">
+                  {/* MyProtein */}
+                  <div className="mx-8 flex items-center justify-center h-16 px-8 bg-white/5 rounded-lg border border-white/10">
+                    <span className="text-2xl font-bold text-white">MyProtein</span>
+                  </div>
+
+                  {/* Optimum Nutrition */}
+                  <div className="mx-8 flex items-center justify-center h-16 px-8 bg-white/5 rounded-lg border border-white/10">
+                    <span className="text-2xl font-bold text-white">Optimum Nutrition</span>
+                  </div>
+
+                  {/* MuscleBlaze */}
+                  <div className="mx-8 flex items-center justify-center h-16 px-8 bg-white/5 rounded-lg border border-white/10">
+                    <span className="text-2xl font-bold text-amber-400">MuscleBlaze</span>
+                  </div>
+
+                  {/* HealthKart */}
+                  <div className="mx-8 flex items-center justify-center h-16 px-8 bg-white/5 rounded-lg border border-white/10">
+                    <span className="text-2xl font-bold text-green-400">HealthKart</span>
+                  </div>
+
+                  {/* GNC */}
+                  <div className="mx-8 flex items-center justify-center h-16 px-8 bg-white/5 rounded-lg border border-white/10">
+                    <span className="text-2xl font-bold text-red-400">GNC</span>
+                  </div>
+
+                  {/* Nutrabay */}
+                  <div className="mx-8 flex items-center justify-center h-16 px-8 bg-white/5 rounded-lg border border-white/10">
+                    <span className="text-2xl font-bold text-blue-400">Nutrabay</span>
+                  </div>
                 </div>
-                <div className="mx-8 flex items-center justify-center">
-                  <img 
-                    src="https://tailwindui.com/plus/img/logos/158x48/reform-logo-white.svg" 
-                    alt="Reform" 
-                    className="h-12 opacity-60 hover:opacity-100 transition-opacity"
-                  />
+                {/* Companies set of logos */}
+                <div className="flex items-center justify-around min-w-full shrink-0">
+                  <div className="mx-8 flex items-center justify-center">
+                    <img
+                      src="https://tailwindui.com/plus/img/logos/158x48/transistor-logo-white.svg"
+                      alt="Transistor"
+                      className="h-12 opacity-60 hover:opacity-100 transition-opacity"
+                    />
+                  </div>
+                  <div className="mx-8 flex items-center justify-center">
+                    <img
+                      src="https://tailwindui.com/plus/img/logos/158x48/reform-logo-white.svg"
+                      alt="Reform"
+                      className="h-12 opacity-60 hover:opacity-100 transition-opacity"
+                    />
+                  </div>
+                  <div className="mx-8 flex items-center justify-center">
+                    <img
+                      src="https://tailwindui.com/plus/img/logos/158x48/tuple-logo-white.svg"
+                      alt="Tuple"
+                      className="h-12 opacity-60 hover:opacity-100 transition-opacity"
+                    />
+                  </div>
+                  <div className="mx-8 flex items-center justify-center">
+                    <img
+                      src="https://tailwindui.com/plus/img/logos/158x48/savvycal-logo-white.svg"
+                      alt="SavvyCal"
+                      className="h-12 opacity-60 hover:opacity-100 transition-opacity"
+                    />
+                  </div>
+                  <div className="mx-8 flex items-center justify-center">
+                    <img
+                      src="https://tailwindui.com/plus/img/logos/158x48/statamic-logo-white.svg"
+                      alt="Statamic"
+                      className="h-12 opacity-60 hover:opacity-100 transition-opacity"
+                    />
+                  </div>
+                  <div className="mx-8 flex items-center justify-center">
+                    <img
+                      src="https://tailwindui.com/plus/img/logos/158x48/laravel-logo-white.svg"
+                      alt="Laravel"
+                      className="h-12 opacity-60 hover:opacity-100 transition-opacity"
+                    />
+                  </div>
                 </div>
-                <div className="mx-8 flex items-center justify-center">
-                  <img 
-                    src="https://tailwindui.com/plus/img/logos/158x48/tuple-logo-white.svg" 
-                    alt="Tuple" 
-                    className="h-12 opacity-60 hover:opacity-100 transition-opacity"
-                  />
-                </div>
-                <div className="mx-8 flex items-center justify-center">
-                  <img 
-                    src="https://tailwindui.com/plus/img/logos/158x48/savvycal-logo-white.svg" 
-                    alt="SavvyCal" 
-                    className="h-12 opacity-60 hover:opacity-100 transition-opacity"
-                  />
-                </div>
-                <div className="mx-8 flex items-center justify-center">
-                  <img 
-                    src="https://tailwindui.com/plus/img/logos/158x48/statamic-logo-white.svg" 
-                    alt="Statamic" 
-                    className="h-12 opacity-60 hover:opacity-100 transition-opacity"
-                  />
-                </div>
-                <div className="mx-8 flex items-center justify-center">
-                  <img 
-                    src="https://tailwindui.com/plus/img/logos/158x48/laravel-logo-white.svg" 
-                    alt="Laravel" 
-                    className="h-12 opacity-60 hover:opacity-100 transition-opacity"
-                  />
+
+                {/* Duplicate set for seamless loop */}
+                <div className="flex items-center justify-around min-w-full shrink-0" aria-hidden="true">
+                  <div className="mx-8 flex items-center justify-center">
+                    <img
+                      src="https://tailwindui.com/plus/img/logos/158x48/transistor-logo-white.svg"
+                      alt="Transistor"
+                      className="h-12 opacity-60 hover:opacity-100 transition-opacity"
+                    />
+                  </div>
+                  <div className="mx-8 flex items-center justify-center">
+                    <img
+                      src="https://tailwindui.com/plus/img/logos/158x48/reform-logo-white.svg"
+                      alt="Reform"
+                      className="h-12 opacity-60 hover:opacity-100 transition-opacity"
+                    />
+                  </div>
+                  <div className="mx-8 flex items-center justify-center">
+                    <img
+                      src="https://tailwindui.com/plus/img/logos/158x48/tuple-logo-white.svg"
+                      alt="Tuple"
+                      className="h-12 opacity-60 hover:opacity-100 transition-opacity"
+                    />
+                  </div>
+                  <div className="mx-8 flex items-center justify-center">
+                    <img
+                      src="https://tailwindui.com/plus/img/logos/158x48/savvycal-logo-white.svg"
+                      alt="SavvyCal"
+                      className="h-12 opacity-60 hover:opacity-100 transition-opacity"
+                    />
+                  </div>
+                  <div className="mx-8 flex items-center justify-center">
+                    <img
+                      src="https://tailwindui.com/plus/img/logos/158x48/statamic-logo-white.svg"
+                      alt="Statamic"
+                      className="h-12 opacity-60 hover:opacity-100 transition-opacity"
+                    />
+                  </div>
+                  <div className="mx-8 flex items-center justify-center">
+                    <img
+                      src="https://tailwindui.com/plus/img/logos/158x48/laravel-logo-white.svg"
+                      alt="Laravel"
+                      className="h-12 opacity-60 hover:opacity-100 transition-opacity"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </section>
-      
-      {/* Why House of Macros? - 3D Swiper Carousel */}
-      <section className="py-24 bg-gradient-to-b from-black to-zinc-950 overflow-hidden">
+
+
+      {/* Why House of Macros? - Header at top, No gap */}
+      <section className="pt-16 pb-0 bg-gradient-to-b from-black to-zinc-950">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
+          <div className="text-center">
             <h2 className="text-4xl sm:text-5xl font-bold mb-4">
               Why House of Macros?
             </h2>
@@ -414,29 +449,89 @@ export function Home({ onNavigate }: HomeProps) {
               Not just meals. Performance food crafted for athletes.
             </p>
           </div>
+        </div>
+      </section>
 
-          {/* Swiper Container */}
-          <div className="features-swiper pt-12 pb-16">
-            <div className="swiper-wrapper">
-              {features.map((feature, index) => (
-                <div key={index} className="swiper-slide">
-                  <div className="w-full h-[500px] bg-gradient-to-b from-white/5 to-transparent border border-white/10 rounded-xl p-8 flex flex-col justify-center items-center text-center">
-                    <div className="w-16 h-16 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-2xl flex items-center justify-center mb-6">
+      {/* Horizontal Scroll Cards - No gap */}
+      <section ref={targetRef} className="relative h-[400vh] bg-zinc-950">
+        <div className="sticky top-0 h-screen flex items-center justify-center overflow-hidden">
+          {/* Scrolling Cards */}
+          <motion.div
+            style={{ x }}
+            className="flex gap-8 items-center"
+          >
+            {features.map((feature, index) => {
+              const cardCenterStart = index / (totalCards - 1);
+              const inputRange = [
+                Math.max(0, cardCenterStart - 0.15),
+                cardCenterStart,
+                Math.min(1, cardCenterStart + 0.15)
+              ];
+
+              const scale = useTransform(
+  scrollYProgress,
+  inputRange,
+  [0.6, 1.8, 0.6] // HUGE center card - 180% size!
+);
+
+const opacity = useTransform(
+  scrollYProgress,
+  inputRange,
+  [0.2, 1, 0.2] // Side cards almost invisible
+);
+
+const borderColor = useTransform(
+  scrollYProgress,
+  inputRange,
+  [
+    'rgba(255, 255, 255, 0)',
+    'rgba(245, 158, 11, 1)',
+    'rgba(255, 255, 255, 0)'
+  ]
+);
+const boxShadow = useTransform(
+  scrollYProgress,
+  inputRange,
+  [
+    '0 0 0 rgba(0, 0, 0, 0)',
+    '0 20px 60px rgba(245, 158, 11, 0.4)', // Glowing amber shadow
+    '0 0 0 rgba(0, 0, 0, 0)'
+  ]
+);
+
+              return (
+                <motion.div
+                  key={index}
+                  style={{ scale, opacity }}
+                  className="min-w-[450px] h-[450px] flex-shrink-0"
+                >
+                  <motion.div
+                    style={{ borderColor, boxShadow }}
+                    className="w-full h-full bg-gradient-to-b from-white/5 to-transparent border-2 rounded-xl p-8 flex flex-col justify-center items-center text-center"
+                  >
+                    <motion.div
+                      style={{
+                        scale: useTransform(scale, [0.85, 1.2], [1, 1.15])
+                      }}
+                      className="w-16 h-16 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-2xl flex items-center justify-center mb-6"
+                    >
                       <feature.icon className="w-8 h-8 text-black" />
-                    </div>
+                    </motion.div>
                     <h3 className="text-2xl font-bold mb-4">{feature.title}</h3>
                     <p className="text-gray-400 leading-relaxed text-lg max-w-md">
                       {feature.description}
                     </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="swiper-pagination mt-8"></div>
-          </div>
+                  </motion.div>
+                </motion.div>
+              );
+            })}
+          </motion.div>
         </div>
       </section>
-      
+
+
+
+
       {/* How It Works Section - Alternating Scroll Animation */}
       <section className="py-24 bg-zinc-950 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -486,7 +581,7 @@ export function Home({ onNavigate }: HomeProps) {
           </div>
         </div>
       </section>
-      
+
       {/* Ready to Transform Your Nutrition? */}
       <section className="py-24 bg-gradient-to-b from-zinc-950 to-black">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">

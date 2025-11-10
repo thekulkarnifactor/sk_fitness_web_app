@@ -26,6 +26,9 @@ interface UserMeal {
 }
 
 export function Dashboard({ onNavigate }: DashboardProps) {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const { user, signOut } = useAuth();
   const [stats, setStats] = useState<UserStats | null>(null);
   const [meals, setMeals] = useState<UserMeal[]>([]);

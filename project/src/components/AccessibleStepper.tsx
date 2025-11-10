@@ -90,17 +90,17 @@ export function AccessibleStepper({
         </ol>
 
         <div className="mt-4 text-center">
-          <p className="text-sm text-gray-400" aria-hidden="true">
+          {/* <p className="text-sm text-gray-400" aria-hidden="true">
             Step {currentStep} of {steps.length}
-          </p>
-          <p className="text-lg font-semibold text-white mt-1">
+          </p> */}
+          {/* <p className="text-lg font-semibold text-white mt-1">
             {steps[currentStep - 1].title}
-          </p>
-          {steps[currentStep - 1].description && (
+          </p> */}
+          {/* {steps[currentStep - 1].description && (
             <p className="text-sm text-gray-400 mt-1">
               {steps[currentStep - 1].description}
             </p>
-          )}
+          )} */}
         </div>
       </nav>
     </>

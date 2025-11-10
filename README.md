@@ -9,4 +9,6 @@ Action items
 4. ⁠meal builder (different page)- link 1. 
 5. ⁠case studies fake 
 6. how it works - timeline
-7. ⁠get started page form
+7.  
+8. veg no veg for chef meals filter
+9. instead of ready tranform give form mail, name , phone number, address

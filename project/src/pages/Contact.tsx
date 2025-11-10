@@ -1,5 +1,5 @@
 import { Mail, Phone, MapPin, MessageSquare, Instagram } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { SmartInput } from '../components/SmartInput';
 import { validators } from '../utils/validators';
 
@@ -8,6 +8,9 @@ interface ContactProps {
 }
 
 export function Contact({ onNavigate }: ContactProps) {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
